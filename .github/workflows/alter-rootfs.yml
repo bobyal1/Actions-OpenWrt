@@ -57,6 +57,7 @@ jobs:
           sudo chmod 777 /mnt/mx4200_rootfs
           ubireader_display_info rootfs.ubi
           ubireader_extract_files -w -o /mnt/mx4200_rootfs rootfs.ubi
+      continue-on-error: true
 
     - name: Modify files
       run: |
