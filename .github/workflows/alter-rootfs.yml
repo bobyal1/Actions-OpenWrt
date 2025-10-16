@@ -29,14 +29,6 @@ jobs:
     runs-on: ubuntu-24.04
 
     steps:
-    - name: Initialization environment
-      env:
-        DEBIAN_FRONTEND: noninteractive
-      run: |
-        sudo apt-get -qq update && sudo apt-get -qq upgrade
-        sudo apt-get -qq autoremove --purge
-        sudo apt-get -qq clean
-
     - name: Install ubi_reader
       run: |
         sudo apt-get update
