@@ -47,11 +47,15 @@ jobs:
           dd if=downloaded_fw.img of=rootfs.ubi bs=512 skip=12288
           ls -lh rootfs.ubi
           ls -ld /mnt
+          which ubireader_extract_files
+          pwd
           xxd rootfs.ubi |head
       
     - name: Extract UBI image
       run: |
-          sudo ubireader_extract_files -o /mnt/mx4200_rootfs rootfs.ubi
+          mkdir /mnt/mx4200_rootfs
+          chown 777 /mnt/mx4200_rootfs
+          ubireader_extract_files -o /mnt/mx4200_rootfs rootfs.ubi
 
     - name: Modify files
       run: |
