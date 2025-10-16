@@ -54,7 +54,7 @@ jobs:
     - name: Extract UBI image
       run: |
           sudo mkdir /mnt/mx4200_rootfs
-          sudo chown 777 /mnt/mx4200_rootfs
+          sudo chmod 777 /mnt/mx4200_rootfs
           ubireader_extract_files -o /mnt/mx4200_rootfs rootfs.ubi
 
     - name: Modify files
