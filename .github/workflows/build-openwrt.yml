@@ -45,7 +45,6 @@ jobs:
         sudo apt-get -qq install $(cat $DEPENDENCIES)
         sudo apt-get -qq autoremove --purge
         sudo apt-get -qq clean
-        sudo apt-get -qq gettext
         sudo timedatectl set-timezone "$TZ"
 
     - name: Maximize build disk space
