@@ -49,7 +49,7 @@ jobs:
           ls -ld /mnt
           which ubireader_extract_files
           pwd
-          xxd rootfs.ubi |head
+          xxd rootfs.ubi |grep UBI
       
     - name: Extract UBI image
       run: |
