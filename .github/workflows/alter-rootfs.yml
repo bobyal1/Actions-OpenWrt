@@ -51,24 +51,25 @@ jobs:
       
     - name: Extract UBI image
       run: |
-          ubireader_extract_files -o /mnt/mx4200_rootfs rootfs.ubi
+          sudo ubireader_extract_files -o /mnt/mx4200_rootfs rootfs.ubi
 
     - name: Modify files
       run: |
           # Navigate to the extracted rootfs
           cd /mnt/mx4200_rootfs
           ls -lh
-          echo "This is a new file created by the GitHub Action." > new_file.txt
+          sudo echo "This is a new file created by the GitHub Action." > new_file.txt
           ls -lh
 
 
     - name: Repack the UBI image
       run: |
           # Create a new UBIFS image from the modified files
-          mkfs.ubifs -r /mnt/mx4200_rootfs -m 16384 -e 2031616 -c 16 -o rootfs-new.ubi
+          cd /mnt
+          sudo mkfs.ubifs -r /mnt/mx4200_rootfs -m 16384 -e 2031616 -c 16 -o rootfs-new.ubi
 
           # Create the ubinize config file
-          cat << EOF > ubinize.cfg
+          sudo cat << EOF > ubinize.cfg
           [rootfs]
           mode=ubi
           image=new_ubifs.img
@@ -79,7 +80,7 @@ jobs:
           EOF
 
           # Create the final UBI image
-          ubinize -o new_ubi.img -p 2097152 -m 16384 ubinize.cfg
+          sudo ubinize -o new_ubi.img -p 2097152 -m 16384 ubinize.cfg
 
 
     - name: Upload the extracted file as an artifact
