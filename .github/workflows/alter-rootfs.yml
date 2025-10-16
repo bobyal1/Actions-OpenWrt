@@ -1,0 +1,96 @@
+name: Build OpenWrt
+
+on:
+  repository_dispatch:
+  workflow_dispatch:
+    inputs:
+      ssh:
+        description: 'SSH connection to Actions'
+        required: true
+        default: 'false'
+        type: choice
+        options:
+        - "true"
+        - "false"
+      version:
+        description: 'OpenWrt version'
+        required: true
+        default: 'snapshot'
+        type: string
+
+env:
+  REPO_URL: https://git.openwrt.org/openwrt/openwrt.git
+  REPO_BRANCH: master
+  BUILD_ROOT: ${{ github.workspace }}/openwrt
+  DEPENDENCIES: ${{ github.workspace }}/dependencies-ubuntu.txt
+  CUSTOM_FEEDS_SH: ${{ github.workspace }}/custom-feeds.sh
+  CUSTOM_PACKAGES_SH: ${{ github.workspace }}/custom-packages.sh
+  CUSTOM_CONFIG_SH: ${{ github.workspace }}/custom-config.sh
+  PREBUILD_MISC_SH: ${{ github.workspace }}/prebuild-misc.sh
+  TZ: Asia/Shanghai
+  DEVICE_NAME: unknown
+  FILE_DATE: unknown
+  FIRMWARE: unknown
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+
+    steps:
+    - name: Initialization environment
+      env:
+        DEBIAN_FRONTEND: noninteractive
+      run: |
+        sudo apt-get -qq update && sudo apt-get -qq upgrade
+        sudo apt-get -qq autoremove --purge
+        sudo apt-get -qq clean
+        sudo timedatectl set-timezone "$TZ"
+        sudo apt update
+        sudo apt install mtd-utils
+        sudo modprobe nandsim first_id_byte=0x2c second_id_byte=0xba third_id_byte=0x00 fourth_id_byte=0x49
+        sudo modprobe ubi
+        sudo modprobe ubifs
+        cat /proc/mtd
+
+    - name: Upload firmware directory
+      uses: actions/upload-artifact@main
+      if: steps.organize.outputs.status == 'success'
+      with:
+        name: OpenWrt_firmware_${{ env.DEVICE_NAME }}_${{ env.FILE_DATE }}
+        path: ${{ env.FIRMWARE }}
+
+    - name: Upload stable firmware to Release
+      uses: softprops/action-gh-release@master
+      if: steps.stabletag.outputs.status == 'success'
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ steps.stabletag.outputs.release_tag }}
+        files: ${{ env.FIRMWARE }}/*
+        body_path: ${{ env.BUILD_ROOT }}/SHA256SUMS
+
+    - name: Upload snapshot firmware to Release
+      uses: softprops/action-gh-release@master
+      if: steps.snapshottag.outputs.status == 'success'
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ steps.snapshottag.outputs.release_tag }}
+        files: ${{ env.FIRMWARE }}/*
+        body_path: ${{ env.BUILD_ROOT }}/SHA256SUMS
+
+    - name: Delete workflow runs
+      if: always()
+      uses: Mattraks/delete-workflow-runs@main
+      with:
+        retain_days: 30
+        keep_minimum_runs: 5
+
+    - name: Remove old Releases
+      if: always()
+      uses: dev-drprasad/delete-older-releases@master
+      with:
+        keep_latest: 5
+        delete_tags: true
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
