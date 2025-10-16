@@ -46,6 +46,8 @@ jobs:
       run: |
           dd if=downloaded_fw.img of=rootfs.ubi bs=512 skip=12288
           ls -lh rootfs.ubi
+          ls -ld /mnt
+          xxd rootfs.ubi |head
       
     - name: Extract UBI image
       run: |
@@ -58,6 +60,7 @@ jobs:
           ls -lh
           echo "This is a new file created by the GitHub Action." > new_file.txt
           ls -lh
+
 
     - name: Repack the UBI image
       run: |
