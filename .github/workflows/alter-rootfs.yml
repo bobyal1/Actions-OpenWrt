@@ -64,7 +64,7 @@ jobs:
       run: |
           # Navigate to the extracted rootfs
           cd /mnt/mx4200_rootfs
-          ls -lhatR
+          ls -latR
           sudo echo "This is a new file created by the GitHub Action." > new_file.txt
           ls -lh
 
