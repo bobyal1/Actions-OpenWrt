@@ -34,46 +34,53 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y python3 python3-pip liblzo2-dev
         pip3 install ubi_reader
+        
+    - name: Download image from Git assets URL
+      run: |
+        IMAGE_URL="https://github.com/AgustinLorenzo/openwrt/releases/download/ipq807x-nsswifi-mesh-2025-10-13-0245/openwrt-qualcommax-ipq807x-linksys_mx4200v1-squashfs-factory.bin"
+        OUTPUT_FILENAME="downloaded_fw.img"
+        curl -L -o "$OUTPUT_FILENAME" "$IMAGE_URL"
+      shell: bash
 
-    - name: Upload firmware directory
-      uses: actions/upload-artifact@main
-      if: steps.organize.outputs.status == 'success'
-      with:
-        name: OpenWrt_firmware_${{ env.DEVICE_NAME }}_${{ env.FILE_DATE }}
-        path: ${{ env.FIRMWARE }}
+    - name: Extract a part of the image using dd
+      run: |
+          dd if=downloaded_fw.img of=rootfs.ubi bs=512 skip=12288
+          ls -lh rootfs.ubi
+      
+    - name: Extract UBI image
+      run: |
+          ubireader_extract_files -o /mnt/mx4200_rootfs rootfs.ubi
 
-    - name: Upload stable firmware to Release
-      uses: softprops/action-gh-release@master
-      if: steps.stabletag.outputs.status == 'success'
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        tag_name: ${{ steps.stabletag.outputs.release_tag }}
-        files: ${{ env.FIRMWARE }}/*
-        body_path: ${{ env.BUILD_ROOT }}/SHA256SUMS
+    - name: Modify files
+      run: |
+          # Navigate to the extracted rootfs
+          cd /mnt/mx4200_rootfs
+          ls -lh
+          echo "This is a new file created by the GitHub Action." > new_file.txt
+          ls -lh
 
-    - name: Upload snapshot firmware to Release
-      uses: softprops/action-gh-release@master
-      if: steps.snapshottag.outputs.status == 'success'
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        tag_name: ${{ steps.snapshottag.outputs.release_tag }}
-        files: ${{ env.FIRMWARE }}/*
-        body_path: ${{ env.BUILD_ROOT }}/SHA256SUMS
+    - name: Repack the UBI image
+      run: |
+          # Create a new UBIFS image from the modified files
+          mkfs.ubifs -r /mnt/mx4200_rootfs -m 16384 -e 2031616 -c 16 -o rootfs-new.ubi
 
-    - name: Delete workflow runs
-      if: always()
-      uses: Mattraks/delete-workflow-runs@main
-      with:
-        retain_days: 30
-        keep_minimum_runs: 5
+          # Create the ubinize config file
+          cat << EOF > ubinize.cfg
+          [rootfs]
+          mode=ubi
+          image=new_ubifs.img
+          vol_id=0
+          vol_type=dynamic
+          vol_name=rootfs
+          vol_flags=autoresize
+          EOF
 
-    - name: Remove old Releases
-      if: always()
-      uses: dev-drprasad/delete-older-releases@master
+          # Create the final UBI image
+          ubinize -o new_ubi.img -p 2097152 -m 16384 ubinize.cfg
+
+
+    - name: Upload the extracted file as an artifact
+      uses: actions/upload-artifact@v4
       with:
-        keep_latest: 5
-        delete_tags: true
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          name: updated-rootfs
+          path: rootfs-new.ubi
