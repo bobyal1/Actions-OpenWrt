@@ -31,7 +31,7 @@ jobs:
     steps:
     - name: Install ubi_reader
       run: |
-        sudo apt-get update
+        #sudo apt-get update
         sudo apt-get install -y python3 python3-pip liblzo2-dev
         pip3 install ubi_reader
         
@@ -55,7 +55,7 @@ jobs:
       run: |
           sudo mkdir /mnt/mx4200_rootfs
           sudo chmod 777 /mnt/mx4200_rootfs
-          ubireader_extract_files -o /mnt/mx4200_rootfs rootfs.ubi
+          ubireader_extract_files -w -o /mnt/mx4200_rootfs rootfs.ubi
 
     - name: Modify files
       run: |
