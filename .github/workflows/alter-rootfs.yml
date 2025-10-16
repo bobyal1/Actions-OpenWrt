@@ -1,4 +1,4 @@
-name: Build OpenWrt
+name: Alter RootFS
 
 on:
   repository_dispatch:
