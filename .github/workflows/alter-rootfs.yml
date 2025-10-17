@@ -39,7 +39,7 @@ jobs:
         
     - name: Download image from Git assets URL
       run: |
-        IMAGE_URL="https://github.com/AgustinLorenzo/openwrt/releases/download/ipq807x-nsswifi-mesh-2025-10-13-0245/openwrt-qualcommax-ipq807x-linksys_mx4200v1-squashfs-factory.bin"
+        IMAGE_URL="https://downloads.openwrt.org/releases/24.10.2/targets/qualcommax/ipq807x/openwrt-24.10.2-qualcommax-ipq807x-linksys_mx4200v1-squashfs-factory.bin"
         OUTPUT_FILENAME="downloaded_fw.img"
         curl -L -o "$OUTPUT_FILENAME" "$IMAGE_URL"
       shell: bash
