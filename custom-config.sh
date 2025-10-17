@@ -6,9 +6,14 @@
 # echo 'CONFIG_TARGET_x86_64_DEVICE_generic=y' >> $BUILD_ROOT/.config
 # echo 'CONFIG_TARGET_ROOTFS_PARTSIZE=3072' >> $BUILD_ROOT/.config
 
-echo 'CONFIG_TARGET_mediatek=y' >> $BUILD_ROOT/.config
-echo 'CONFIG_TARGET_mediatek_filogic=y' >> $BUILD_ROOT/.config
-echo 'CONFIG_TARGET_mediatek_filogic_DEVICE_bananapi_bpi-r3-mini=y' >> $BUILD_ROOT/.config
+#echo 'CONFIG_TARGET_mediatek=y' >> $BUILD_ROOT/.config
+#echo 'CONFIG_TARGET_mediatek_filogic=y' >> $BUILD_ROOT/.config
+#echo 'CONFIG_TARGET_mediatek_filogic_DEVICE_bananapi_bpi-r3-mini=y' >> $BUILD_ROOT/.config
+#echo 'CONFIG_TARGET_ROOTFS_PARTSIZE=4096' >> $BUILD_ROOT/.config
+
+echo 'CONFIG_TARGET_qualcommax=y' >> $BUILD_ROOT/.config
+echo 'CONFIG_TARGET_qualcommax_filogic=y' >> $BUILD_ROOT/.config
+echo 'CONFIG_TARGET_qualcommax_patches-6.12=y' >> $BUILD_ROOT/.config
 echo 'CONFIG_TARGET_ROOTFS_PARTSIZE=4096' >> $BUILD_ROOT/.config
 
 # Lanuage Setting
