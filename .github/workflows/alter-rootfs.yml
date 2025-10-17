@@ -55,6 +55,12 @@ jobs:
           xxd rootfs.ubi |grep UBI
           ubireader_extract_images rootfs.ubi
           ls -latR
+          sudo mkdir /mnt/mx4200_rootfs
+          sudo chmod 777 /mnt/mx4200_rootfs
+          sudo modprobe ubi
+          sudo ubiattach -p /dev/mtd0
+          sudo mount -t ubifs ubi0_1 /mnt/mx4200_rootfs
+          ls -latR /mnt/mx4200_rootfs
       continue-on-error: true
       
     - name: Extract UBI image
