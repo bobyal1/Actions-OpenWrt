@@ -53,9 +53,9 @@ jobs:
           which ubireader_extract_files
           pwd
           xxd rootfs.ubi |grep UBI
-          binwalk rootfs.ubi
-          binwalk -e rootfs.ubi
+          ubireader_extract_images rootfs.ubi
           ls -latR
+      continue-on-error: true
       
     - name: Extract UBI image
       run: |
