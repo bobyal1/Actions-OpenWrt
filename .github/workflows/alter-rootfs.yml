@@ -55,14 +55,14 @@ jobs:
       
     - name: Extract UBI image
       run: |
-          sudo modprobe nandsim first_id_byte=0x2c second_id_byte=0xba third_id_byte=0x00 fourth_id_byte=0x49
-          sudo modprobe ubi
-          sudo modprobe ubifs
-          cat /proc/mtd
+          #sudo modprobe nandsim first_id_byte=0x2c second_id_byte=0xba third_id_byte=0x00 fourth_id_byte=0x49
+          #sudo modprobe ubi
+          #sudo modprobe ubifs
+          #cat /proc/mtd
           sudo mkdir /mnt/mx4200_rootfs
           sudo chmod 777 /mnt/mx4200_rootfs
           ubireader_display_info rootfs.ubi
-          ubireader_extract_files -w -o /mnt/mx4200_rootfs rootfs.ubi
+          ubireader_extract_files -w -p 131072 -e 126976 -o /mnt/mx4200_rootfs rootfs.ubi
       continue-on-error: true
 
     - name: Modify files
