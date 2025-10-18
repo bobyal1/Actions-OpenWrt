@@ -42,14 +42,44 @@ jobs:
         cd openwrt
         git pull
         git checkout openwrt-24.10
+      shell: bash 
+      
+    - name: feeds update
+      run: |
+        cd openwrt
         ./scripts/feeds update -a
+      shell: bash
+      
+    - name: feeds install
+      run: |
+        cd openwrt
         ./scripts/feeds install -a
+      shell: bash
+      
+    - name: make defconfig
+      run: |
+        cd openwrt
         CONF_URL="https://downloads.openwrt.org/releases/24.10.2/targets/qualcommax/ipq807x/config.buildinfo"
         OUTPUT_FILENAME=".config"
         curl -L -o "$OUTPUT_FILENAME" "$CONF_URL"
-        make defconfig download clean world
+        make defconfig 
+        ls -latr
+      shell: bash
+      
+    - name: make defconfig
+      run: |
+        cd openwrt
+        make download 
+        ls -latr
       shell: bash
 
+    - name: make buidling
+      run: |
+        cd openwrt
+        make 
+        ls -latr
+      shell: bash
+      
     - name: Upload the extracted file as an artifact
       uses: actions/upload-artifact@v4
       with:
