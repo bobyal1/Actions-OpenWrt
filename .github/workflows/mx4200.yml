@@ -62,7 +62,7 @@ jobs:
         CONF_URL="https://downloads.openwrt.org/releases/24.10.2/targets/qualcommax/ipq807x/config.buildinfo"
         OUTPUT_FILENAME=".config"
         curl -L -o "$OUTPUT_FILENAME" "$CONF_URL"
-        make defconfig 
+        #make defconfig 
         ls -latr
       shell: bash
       
