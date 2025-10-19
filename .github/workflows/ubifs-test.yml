@@ -54,34 +54,27 @@ jobs:
             echo "Failed to find extracted kernel source directory."
             exit 1
           fi
-          echo "#################kernel_source_path=/tmp/${KERNEL_SOURCE_DIR}"
-          ls -latR /tmp/${KERNEL_SOURCE_DIR}
-          echo "kernel_source_path=/tmp/${KERNEL_SOURCE_DIR}" >> $GITHUB_OUTPUT
-
           
-          # Verify that the build directory link was created
-          if [ ! -d "/lib/modules/${kernel_version}/build" ]; then
-            echo "Kernel build directory not found after headers install."
-            echo "Attempting to locate or download kernel source manually."
-            
-            # Use 'apt-get source' to download the kernel source matching the headers
-            # This is a common and reliable method on Ubuntu
-            sudo apt-get install -y dpkg-dev
-            mkdir -p /usr/src/kernels
-            cd /usr/src/kernels
-            apt-get source linux-image-${kernel_version}
-            
-            # Assume the source is extracted into a directory named like 'linux-*'
-            export KERNEL_SOURCE_DIR=$(find . -maxdepth 1 -type d -name "linux-*" | head -n 1)
-            
-            # Create the necessary symbolic link if it's missing
-            if [ -n "$KERNEL_SOURCE_DIR" ]; then
-              sudo ln -sf "$(pwd)/${KERNEL_SOURCE_DIR}" "/lib/modules/${kernel_version}/build"
-            else
-              echo "Could not find or download kernel source. Exiting."
-              exit 1
-            fi
-          fi
+          # Clone the kernel source from Launchpad and checkout the correct branch
+          echo "Cloning kernel source for series: ${ub_series}..."
+          cd /tmp
+          git clone --depth 1 git://git.launchpad.net/~ubuntu-kernel/ubuntu/+source/${ub_version}/+git/${ub_series} kernel_build
+          cd kernel_build
+          
+          # Switch to the 'master' branch, which contains the kernel source
+          git fetch origin master
+          git checkout master
+          
+          # Use the commit matching the host's kernel for best compatibility
+          if ! git checkout Ubuntu-"${kernel_version}" 2>/dev/null; then
+            echo "Warning: No exact tag match for Ubuntu-${kernel_version}. Using master branch."
+          fi 
+          
+          echo "#################kernel_source_path=/tmp/${KERNEL_SOURCE_DIR}"
+          ls -latR /tmp/kernel_build
+          #echo "kernel_source_path=/tmp/${KERNEL_SOURCE_DIR}" >> $GITHUB_OUTPUT
+          echo "kernel_source_path=/tmp/kernel_build" >> $GITHUB_OUTPUT
+
 
 
 
