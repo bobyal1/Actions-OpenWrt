@@ -30,5 +30,59 @@ jobs:
 
       - name: Run container with privileged access
         # Run the container with the privileged flag
-        run: docker run --privileged -v ${{ github.workspace }}:/workspace ubifs-test-image /workspace/.github/scripts/run-test.sh
+        #run: docker run --privileged -v ${{ github.workspace }}:/workspace ubifs-test-image /workspace/.github/scripts/run-test.sh
+        run: |
+          docker run --privileged \
+            -v /lib/modules:/lib/modules \
+            -v /usr/src:/usr/src \
+            -v ${{ github.workspace }}:/workspace \
+            -w /workspace \
+            ubifs-builder /bin/bash -c "
+            set -e
+
+            # Install kernel headers (from the host, not repo)
+            apt-get update && apt-get install -y linux-headers-${{ steps.get_kernel_version.outputs.kernel_version }}
+
+            # Locate or clone the kernel source for nandsim
+            # NOTE: If the runner's kernel source isn't on the runner, you'll need to clone it
+            # This example assumes the headers package install places the source in a standard location
+            KERN_BUILD_DIR=/lib/modules/${{ steps.get_kernel_version.outputs.kernel_version }}/build
+            if [ ! -d \"$KERN_BUILD_DIR\" ]; then
+              echo 'Kernel build directory not found. Please provide the kernel source.'
+              exit 1
+            fi
+
+            # Build and insert nandsim module
+            echo 'Building nandsim module...'
+            make -C \"$KERN_BUILD_DIR\" M=drivers/mtd/nand/raw modules
+            insmod drivers/mtd/nand/raw/nandsim.ko
+
+            # Verify nandsim module is loaded
+            if lsmod | grep nandsim; then
+              echo 'nandsim module loaded successfully.'
+            else
+              echo 'Failed to load nandsim module.'
+              exit 1
+            fi
+
+            # Create a NAND device and UBIFS volume
+            modprobe mtdblock
+            modprobe ubi
+            echo 'Configuring nandsim and UBIFS...'
+
+            # Create the UBIFS image (adjust size and eraseblock size as needed)
+            flash_eraseall /dev/mtd0
+            mkfs.ubifs -r /dev/mtd0 -m 2048 -e 126976 -c 1024 -o ubifs.img
+
+            # Attach UBI device
+            ubiattach /dev/ubi_ctrl -m 0
+            ubimkvol /dev/ubi0 -N my_ubifs_volume -m
+
+            # Mount the UBIFS volume
+            mkdir -p /mnt/ubifs
+            mount -t ubifs ubi0:my_ubifs_volume /mnt/ubifs
+
+            echo 'UBIFS mounted at /mnt/ubifs.'
+            ls -l /mnt/ubifs
+          "
 
