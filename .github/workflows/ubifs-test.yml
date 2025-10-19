@@ -54,6 +54,7 @@ jobs:
             echo "Failed to find extracted kernel source directory."
             exit 1
           fi
+          echo "#################kernel_source_path=/tmp/${KERNEL_SOURCE_DIR}"
           echo "kernel_source_path=/tmp/${KERNEL_SOURCE_DIR}" >> $GITHUB_OUTPUT
 
           
