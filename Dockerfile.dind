@@ -1,20 +1,21 @@
-# Stage 1: Build the UBIFS image and related files
+# Stage 1: Builder - Create the UBIFS image and related files
 FROM ubuntu:22.04 AS builder
 
 # Install build tools and MTD utilities for Ubuntu
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     mtd-utils \
-    kmod
+    kmod \
+    iproute2
 
 # Create a temporary directory for the root filesystem
 WORKDIR /tmp/rootfs
 RUN mkdir -p /tmp/rootfs
-# Add any files you want in the UBIFS image here.
+# Copy files you want to include in the UBIFS image from your repository
 # For example, copying files from the checked-out repository:
 # COPY . /tmp/rootfs/
 
-# Create a separate data directory for the output image
+# Create a separate data directory for the output images
 WORKDIR /data
 RUN dd if=/dev/zero of=ubifs.img bs=1M count=64
 
