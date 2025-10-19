@@ -1,0 +1,24 @@
+# Use a suitable base image for compiling
+FROM alpine:latest AS build
+
+# Install build tools and MTD utilities
+RUN apk add --no-cache bash mtd-utils kmod build-essential linux-headers
+
+# Create an ubifs image (example for demonstration)
+WORKDIR /data
+RUN dd if=/dev/zero of=ubifs.img bs=1M count=64
+RUN mkfs.ubifs -r / -m 2048 -e 129024 -c 516 -o ubifs.img
+RUN echo "[ubifs]" > ubifs.cfg
+RUN echo "mode=ubi" >> ubifs.cfg
+RUN echo "image=ubifs.img" >> ubifs.cfg
+RUN echo "vol_id=0" >> ubifs.cfg
+RUN echo "vol_name=my_volume" >> ubifs.cfg
+RUN echo "vol_type=dynamic" >> ubifs.cfg
+RUN echo "vol_size=50MiB" >> ubifs.cfg
+RUN ubinize -o ubi.img -m 2048 -p 129024 -s 512 ubifs.cfg
+
+# Final image - install tools, but no build dependencies
+FROM alpine:latest
+RUN apk add --no-cache mtd-utils kmod
+COPY --from=build /data /data
+WORKDIR /data
