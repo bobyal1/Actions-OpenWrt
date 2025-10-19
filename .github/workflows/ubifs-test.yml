@@ -43,6 +43,17 @@ jobs:
           else
             sudo sed -i 's/^# deb-src/deb-src/' /etc/apt/sources.list
           fi
+
+          # Extract kernel type from the version string (e.g., "azure")
+          kernel_type=$(echo "$kernel_version" | grep -oP '\-\K[a-z]+(?=\-\d)')
+          if [[ -z "$kernel_type" ]]; then
+            kernel_source_name="linux"
+          else
+            kernel_source_name="linux-${kernel_type}"
+          fi
+          # Extract Ubuntu series (e.g., "jammy" for kernel 5.15) from the runner's OS version
+          ubuntu_series=$(lsb_release -cs)
+          
           sudo apt-get update
           sudo apt-get install -y linux-headers-${kernel_version}
           sudo apt-get install -y dpkg-dev
@@ -60,9 +71,9 @@ jobs:
           fi
           
           # Clone the kernel source from Launchpad and checkout the correct branch
-          echo "Cloning kernel source for series: ${ub_series}..."
+          echo "Cloning kernel source for series: ${ubuntu_series} from repo: ${kernel_source_name}..."
           cd /tmp
-          git clone --depth 1 git://git.launchpad.net/~ubuntu-kernel/ubuntu/+source/${ub_version}/+git/${ub_series} kernel_build
+          git clone --depth 1 git://git.launchpad.net/~ubuntu-kernel/ubuntu/+source/${kernel_source_name}/+git/${ubuntu_series} kernel_build
           cd kernel_build
           
           # Switch to the 'master' branch, which contains the kernel source
