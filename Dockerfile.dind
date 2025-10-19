@@ -1,14 +1,17 @@
-# Use a suitable base image for compiling
-FROM alpine:latest AS build
+# Stage 1: Build the UBIFS image and related files
+FROM ubuntu:22.04 AS builder
 
-# Install build tools and MTD utilities
-RUN apk add --no-cache bash mtd-utils kmod build-base linux-headers
+# Install build tools and MTD utilities for Ubuntu
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    mtd-utils \
+    kmod
 
 # Create a temporary directory for the root filesystem
 WORKDIR /tmp/rootfs
 RUN mkdir -p /tmp/rootfs
 # Add any files you want in the UBIFS image here.
-# For example, copying files from the checked-out repository.
+# For example, copying files from the checked-out repository:
 # COPY . /tmp/rootfs/
 
 # Create a separate data directory for the output image
@@ -18,7 +21,7 @@ RUN dd if=/dev/zero of=ubifs.img bs=1M count=64
 # Create the UBIFS image using the /tmp/rootfs directory as the source.
 RUN mkfs.ubifs -r /tmp/rootfs -m 2048 -e 129024 -c 516 -o ubifs.img
 
-# The rest of the Dockerfile remains the same for creating the UBI image.
+# Create the UBI configuration and image
 RUN echo "[ubifs]" > ubifs.cfg
 RUN echo "mode=ubi" >> ubifs.cfg
 RUN echo "image=ubifs.img" >> ubifs.cfg
@@ -28,8 +31,17 @@ RUN echo "vol_type=dynamic" >> ubifs.cfg
 RUN echo "vol_size=50MiB" >> ubifs.cfg
 RUN ubinize -o ubi.img -m 2048 -p 129024 -s 512 ubifs.cfg
 
-# Final image - install tools, but no build dependencies
-FROM alpine:latest
-RUN apk add --no-cache mtd-utils kmod bash
-COPY --from=build /data /data
+
+# Stage 2: Final image for running the test
+FROM ubuntu:22.04
+
+# Install MTD utilities and kmod
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    mtd-utils \
+    kmod \
+    iproute2
+
+# Copy the UBIFS images from the builder stage
+COPY --from=builder /data /data
+
 WORKDIR /data
