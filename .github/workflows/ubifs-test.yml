@@ -85,7 +85,7 @@ jobs:
           echo "Cloning kernel source for series: ${ubuntu_series} from repo: ${kernel_source_name}..."
           cd /tmp
           #git clone --depth 1 git://git.launchpad.net/~ubuntu-kernel/ubuntu/+source/${kernel_source_name}/+git/${ubuntu_series} kernel_build
-          git clone --depth 1 git://git.launchpad.net/ubuntu/+source/linux-azure kernel_build
+          git clone --depth 1 git://git.launchpad.net/ubuntu/+source/linux-signed-azure-fde-6.14 kernel_build
           cd kernel_build
 
           # Check out the commit matching the host's kernel for best compatibility
