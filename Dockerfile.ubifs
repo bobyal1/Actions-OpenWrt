@@ -1,4 +1,4 @@
-FROM ubuntu:22.04
+FROM ubuntu:24.04
 
 # Install base packages and build dependencies for mtd-utils and the kernel module
 RUN apt-get update && \
