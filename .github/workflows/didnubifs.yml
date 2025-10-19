@@ -1,0 +1,46 @@
+name: Test Nandsim and UBIFS
+on:
+  workflow_dispatch:
+
+jobs:
+  test-ubifs-mount:
+    runs-on: ubuntu-latest
+    container:
+      image: docker:dind
+      options: --privileged
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Build custom container with ubifs image
+        run: docker build -t ubifs-builder -f Dockerfile.dind .
+
+      - name: Run test in privileged container
+        run: |
+          # Use the built image to run a privileged container
+          docker run --privileged ubifs-builder /bin/bash -c "
+            # Load the nandsim kernel module to create a simulated NAND flash device.
+            modprobe nandsim first_id_byte=0x2c second_id_byte=0xac third_id_byte=0x90 fourth_id_byte=0x26
+
+            # Verify that the MTD device was created.
+            cat /proc/mtd
+
+            # Write the UBI image to the simulated NAND flash device.
+            nandwrite -p /dev/mtd0 ubi.img
+
+            # Load the UBI kernel module and attach the MTD device.
+            modprobe ubi mtd=0
+
+            # Mount the UBIFS volume.
+            mkdir /mnt/ubifs
+            mount -t ubifs ubi0:my_volume /mnt/ubifs
+
+            echo 'Listing mounted contents:'
+            ls -l /mnt/ubifs
+
+            # Clean up (optional)
+            umount /mnt/ubifs
+            modprobe -r ubi
+            modprobe -r nandsim
+          "
