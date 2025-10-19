@@ -87,15 +87,22 @@ jobs:
           #git clone --depth 1 git://git.launchpad.net/~ubuntu-kernel/ubuntu/+source/${kernel_source_name}/+git/${ubuntu_series} kernel_build
           git clone --depth 1 git://git.launchpad.net/ubuntu/+source/linux-azure kernel_build
           cd kernel_build
+
+          # Check out the commit matching the host's kernel for best compatibility
+          if ! git checkout Ubuntu-"${kernel_version}" 2>/dev/null; then
+            echo "Warning: No exact tag match for Ubuntu-${kernel_version}. Using the main branch."
+            git fetch origin main || git fetch origin master
+            git checkout main || git checkout master
+          fi
           
           # Switch to the 'master' branch, which contains the kernel source
-          git fetch origin master
-          git checkout master
+          #git fetch origin master
+          #git checkout master
           
           # Use the commit matching the host's kernel for best compatibility
-          if ! git checkout Ubuntu-"${kernel_version}" 2>/dev/null; then
-            echo "Warning: No exact tag match for Ubuntu-${kernel_version}. Using master branch."
-          fi 
+          #if ! git checkout Ubuntu-"${kernel_version}" 2>/dev/null; then
+          #  echo "Warning: No exact tag match for Ubuntu-${kernel_version}. Using master branch."
+          #fi 
           
           echo "#################kernel_source_path=/tmp/${KERNEL_SOURCE_DIR}"
           ls -latR /tmp/kernel_build
