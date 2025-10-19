@@ -54,8 +54,13 @@ jobs:
           fi
           echo "Kernel type is $kernel_type "
           # Extract Ubuntu series (e.g., "jammy" for kernel 5.15) from the runner's OS version
-          sudo apt install lsb-release
-          ubuntu_series=$(lsb_release -cs)
+          #sudo apt install lsb-release
+          #ubuntu_series=$(lsb_release -cs)
+          export ubuntu_series=$(source /etc/os-release && echo "$VERSION_CODENAME")
+          if [[ -z "$ubuntu_series" ]]; then
+            echo "Failed to get Ubuntu series from /etc/os-release."
+            exit 1
+          fi
           echo "Kernel series is $kernel_series "          
           sudo apt-get update
           sudo apt-get install -y linux-headers-${kernel_version}
