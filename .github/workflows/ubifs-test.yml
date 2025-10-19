@@ -64,7 +64,7 @@ jobs:
                echo "Warning: Could not determine Ubuntu series for kernel $kernel_version. Defaulting to 'jammy'."
                ubuntu_series="jammy";;
           esac
-          echo "Kernel series is $kernel_series "          
+          echo "Kernel series is $ubuntu_series "          
           sudo apt-get update
           sudo apt-get install -y linux-headers-${kernel_version}
           sudo apt-get install -y dpkg-dev
