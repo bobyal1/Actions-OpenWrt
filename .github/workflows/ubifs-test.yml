@@ -92,6 +92,7 @@ jobs:
           
           docker build -t ubifs-builder -f Dockerfile.ubifs .
           echo "################### ${{ steps.get_kernel_source.outputs.kernel_source_path }}"
+          ls -latR ${{ steps.get_kernel_source.outputs.kernel_source_path }}
           docker run --privileged \
             -v /lib/modules:/lib/modules \
             -v /usr/src:/usr/src \
@@ -111,7 +112,7 @@ jobs:
             #export KERN_BUILD_DIR=/lib/modules/${{ steps.get_kernel_source.outputs.kernel_version }}/build
             # Use the mounted kernel source
             export KERN_BUILD_DIR=/usr/src/kernel_build
-            
+            ls -latR /usr/src/kernel_build
             #KERN_BUILD_DIR=/lib/modules/${{ steps.get_kernel_version.outputs.kernel_version }}/build
             if [ ! -d \"$KERN_BUILD_DIR\" ]; then
               echo 'Kernel build directory not found. Please provide the kernel source.'
