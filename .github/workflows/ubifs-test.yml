@@ -36,6 +36,19 @@ jobs:
           # This will install the kernel headers package, which often creates the build symlink
           sudo apt-get update
           sudo apt-get install -y linux-headers-${kernel_version}
+
+          # Get kernel source
+          cd /tmp
+          apt-get source linux-image-${kernel_version} || apt-get source linux-image-unsigned-${kernel_version} || apt-get source linux-image-generic
+          
+          # Find the extracted kernel source directory
+          export KERNEL_SOURCE_DIR=$(find . -maxdepth 1 -type d -name "linux-*" | head -n 1)
+          if [ -z "$KERNEL_SOURCE_DIR" ]; then
+            echo "Failed to find extracted kernel source directory."
+            exit 1
+          fi
+          echo "kernel_source_path=/tmp/${KERNEL_SOURCE_DIR}" >> $GITHUB_OUTPUT
+
           
           # Verify that the build directory link was created
           if [ ! -d "/lib/modules/${kernel_version}/build" ]; then
@@ -73,6 +86,7 @@ jobs:
             -v /lib/modules:/lib/modules \
             -v /usr/src:/usr/src \
             -v ${{ github.workspace }}:/workspace \
+            -v ${{ steps.get_kernel_source.outputs.kernel_source_path }}:/usr/src/kernel_build \
             -w /workspace \
             ubifs-builder /bin/bash -c "
             set -e
@@ -84,7 +98,9 @@ jobs:
             # NOTE: If the runner's kernel source isn't on the runner, you'll need to clone it
             # This example assumes the headers package install places the source in a standard location
             # Use the already installed headers/source on the host
-            export KERN_BUILD_DIR=/lib/modules/${{ steps.get_kernel_source.outputs.kernel_version }}/build
+            #export KERN_BUILD_DIR=/lib/modules/${{ steps.get_kernel_source.outputs.kernel_version }}/build
+            # Use the mounted kernel source
+            export KERN_BUILD_DIR=/usr/src/kernel_build
             
             #KERN_BUILD_DIR=/lib/modules/${{ steps.get_kernel_version.outputs.kernel_version }}/build
             if [ ! -d \"$KERN_BUILD_DIR\" ]; then
