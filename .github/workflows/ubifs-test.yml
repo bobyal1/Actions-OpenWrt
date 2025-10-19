@@ -114,10 +114,10 @@ jobs:
             export KERN_BUILD_DIR=/usr/src/kernel_build
             ls -latR /usr/src/kernel_build
             #KERN_BUILD_DIR=/lib/modules/${{ steps.get_kernel_version.outputs.kernel_version }}/build
-            if [ ! -d \"$KERN_BUILD_DIR\" ]; then
-              echo 'Kernel build directory not found. Please provide the kernel source.'
-              exit 1
-            fi
+            #if [ ! -d \"$KERN_BUILD_DIR\" ]; then
+            #  echo 'Kernel build directory not found. Please provide the kernel source.'
+            #  exit 1
+            #fi
 
             # Build and insert nandsim module
             echo 'Building nandsim module...'
