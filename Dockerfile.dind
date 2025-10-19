@@ -11,9 +11,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Create a temporary directory for the root filesystem
 WORKDIR /tmp/rootfs
 RUN mkdir -p /tmp/rootfs
-# Copy files you want to include in the UBIFS image from your repository
-# For example, copying files from the checked-out repository:
-# COPY . /tmp/rootfs/
 
 # Create a separate data directory for the output images
 WORKDIR /data
@@ -42,7 +39,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     kmod \
     iproute2
 
-# Copy the UBIFS images from the builder stage
+# Create a directory for the custom module
+RUN mkdir -p /lib/modules/custom
+
+# Copy the UBIFS images and compiled module from the builder stage
 COPY --from=builder /data /data
 
 WORKDIR /data
