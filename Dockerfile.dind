@@ -1,5 +1,5 @@
 # Stage 1: Builder - Create the UBIFS image and related files
-FROM ubuntu:22.04 AS builder
+FROM ubuntu:24.04 AS builder
 
 # Install build tools and MTD utilities for Ubuntu
 RUN apt-get update && apt-get install -y --no-install-recommends \
