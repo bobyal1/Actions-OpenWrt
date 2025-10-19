@@ -1,6 +1,7 @@
 name: UBIFS Test
 
-on: [push]
+on:
+   repository_dispatch:
 
 jobs:
   ubifs-workflow:
