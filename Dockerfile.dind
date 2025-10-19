@@ -2,14 +2,23 @@
 FROM alpine:latest AS build
 
 # Install build tools and MTD utilities
-# The 'linux-headers' package might not be strictly necessary if we are not compiling modules,
-# but it is good practice to include it for kernel-related tools.
 RUN apk add --no-cache bash mtd-utils kmod build-base linux-headers
 
-# Create an ubifs image (example for demonstration)
+# Create a temporary directory for the root filesystem
+WORKDIR /tmp/rootfs
+RUN mkdir -p /tmp/rootfs
+# Add any files you want in the UBIFS image here.
+# For example, copying files from the checked-out repository.
+# COPY . /tmp/rootfs/
+
+# Create a separate data directory for the output image
 WORKDIR /data
 RUN dd if=/dev/zero of=ubifs.img bs=1M count=64
-RUN mkfs.ubifs -r / -m 2048 -e 129024 -c 516 -o ubifs.img
+
+# Create the UBIFS image using the /tmp/rootfs directory as the source.
+RUN mkfs.ubifs -r /tmp/rootfs -m 2048 -e 129024 -c 516 -o ubifs.img
+
+# The rest of the Dockerfile remains the same for creating the UBI image.
 RUN echo "[ubifs]" > ubifs.cfg
 RUN echo "mode=ubi" >> ubifs.cfg
 RUN echo "image=ubifs.img" >> ubifs.cfg
