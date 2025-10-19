@@ -121,7 +121,8 @@ jobs:
 
             # Build and insert nandsim module
             echo 'Building nandsim module...'
-            make -C /usr/src/kernel_build M=drivers/mtd/nand/raw modules
+            make -C /usr/src/kernel_build  M=\"/workspace/\" modules
+            #make -C /usr/src/kernel_build M=drivers/mtd/nand/raw modules
             insmod drivers/mtd/nand/raw/nandsim.ko
 
             # Verify nandsim module is loaded
