@@ -5,25 +5,25 @@ on:
 jobs:
   test-ubifs-mount:
     runs-on: ubuntu-latest
-    container:
-      image: docker:dind
-      options: --privileged
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Build custom container with ubifs image
-        run: docker build -t ubifs-builder -f Dockerfile.dind .
+        run: docker build -t ubifs-builder -f Dockerfile.ubifs .
 
       - name: Run test in privileged container
         run: |
           # Use the built image to run a privileged container
-          # Mount the host's /lib/modules to access kernel modules
-          docker run --privileged -v /lib/modules:/lib/modules ubifs-builder /bin/bash -c "
+          # Mounting /lib/modules is no longer necessary
+          # --privileged flag is required for loading kernel modules
+          docker run --privileged ubifs-builder /bin/bash -c "
             # Load the nandsim kernel module to create a simulated NAND flash device.
             modprobe nandsim first_id_byte=0x2c second_id_byte=0xac third_id_byte=0x90 fourth_id_byte=0x26
 
+            # Wait for the device to appear
+            sleep 2
+            
             # Verify that the MTD device was created.
             cat /proc/mtd
 
