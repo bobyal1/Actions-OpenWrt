@@ -31,6 +31,9 @@ jobs:
           # Get the host runner's kernel version
           export kernel_version=$(uname -r)
           echo "kernel_version=${kernel_version}" >> $GITHUB_OUTPUT
+          # Extract Ubuntu series and version from the kernel version
+          export ub_series=$(echo "$kernel_version" | sed -E 's/.*-([a-z]+[0-9]+).*/\1/')
+          export ub_version=$(echo "$kernel_version" | sed -E 's/.*-([a-z]+[0-9]+).*/linux-\1/')
           
           # Use a standard location for kernel source, e.g., using apt
           # This will install the kernel headers package, which often creates the build symlink
@@ -43,6 +46,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y linux-headers-${kernel_version}
           sudo apt-get install -y dpkg-dev
+          sudo apt-get install -y git
 
           # Get kernel source
           cd /tmp
