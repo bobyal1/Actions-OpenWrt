@@ -26,12 +26,14 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Build and tag Docker image
-        run: docker build -t ubifs-test-image -f Dockerfile.ubifs .
+        #run: docker build -t ubifs-test-image -f Dockerfile.ubifs .
 
       - name: Run container with privileged access
         # Run the container with the privileged flag
         #run: docker run --privileged -v ${{ github.workspace }}:/workspace ubifs-test-image /workspace/.github/scripts/run-test.sh
         run: |
+          docker build -t ubifs-test-image -f Dockerfile.ubifs .
+          
           docker run --privileged \
             -v /lib/modules:/lib/modules \
             -v /usr/src:/usr/src \
