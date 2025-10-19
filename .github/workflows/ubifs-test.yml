@@ -45,7 +45,8 @@ jobs:
           fi
 
           # Extract kernel type from the version string (e.g., "azure")
-          kernel_type=$(echo "$kernel_version" | grep -oP '\-\K[a-z]+(?=\-\d)')
+          kernel_type=azure
+          #$(echo "$kernel_version" | grep -oP '\-\K[a-z]+(?=\-\d)')
           if [[ -z "$kernel_type" ]]; then
             kernel_source_name="linux"
           else
