@@ -111,7 +111,7 @@ jobs:
             # Use the already installed headers/source on the host
             #export KERN_BUILD_DIR=/lib/modules/${{ steps.get_kernel_source.outputs.kernel_version }}/build
             # Use the mounted kernel source
-            export KERN_BUILD_DIR=/usr/src/kernel_build
+            KERN_BUILD_DIR=/usr/src/kernel_build
             ls -latR /usr/src/kernel_build
             #KERN_BUILD_DIR=/lib/modules/${{ steps.get_kernel_version.outputs.kernel_version }}/build
             #if [ ! -d \"$KERN_BUILD_DIR\" ]; then
@@ -121,7 +121,7 @@ jobs:
 
             # Build and insert nandsim module
             echo 'Building nandsim module...'
-            make -C \"$KERN_BUILD_DIR\" M=drivers/mtd/nand/raw modules
+            make -C /usr/src/kernel_build M=drivers/mtd/nand/raw modules
             insmod drivers/mtd/nand/raw/nandsim.ko
 
             # Verify nandsim module is loaded
