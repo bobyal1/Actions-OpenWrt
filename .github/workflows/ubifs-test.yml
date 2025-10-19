@@ -55,6 +55,7 @@ jobs:
             exit 1
           fi
           echo "#################kernel_source_path=/tmp/${KERNEL_SOURCE_DIR}"
+          ls -latR /tmp/${KERNEL_SOURCE_DIR}
           echo "kernel_source_path=/tmp/${KERNEL_SOURCE_DIR}" >> $GITHUB_OUTPUT
 
           
@@ -88,8 +89,9 @@ jobs:
         # Run the container with the privileged flag
         #run: docker run --privileged -v ${{ github.workspace }}:/workspace ubifs-test-image /workspace/.github/scripts/run-test.sh
         run: |
-          docker build -t ubifs-builder -f Dockerfile.ubifs .
           
+          docker build -t ubifs-builder -f Dockerfile.ubifs .
+          echo "################### ${{ steps.get_kernel_source.outputs.kernel_source_path }}"
           docker run --privileged \
             -v /lib/modules:/lib/modules \
             -v /usr/src:/usr/src \
