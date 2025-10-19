@@ -84,7 +84,8 @@ jobs:
           # Clone the kernel source from Launchpad and checkout the correct branch
           echo "Cloning kernel source for series: ${ubuntu_series} from repo: ${kernel_source_name}..."
           cd /tmp
-          git clone --depth 1 git://git.launchpad.net/~ubuntu-kernel/ubuntu/+source/${kernel_source_name}/+git/${ubuntu_series} kernel_build
+          #git clone --depth 1 git://git.launchpad.net/~ubuntu-kernel/ubuntu/+source/${kernel_source_name}/+git/${ubuntu_series} kernel_build
+          git clone --depth 1 git://git.launchpad.net/ubuntu/+source/linux-azure kernel_build
           cd kernel_build
           
           # Switch to the 'master' branch, which contains the kernel source
