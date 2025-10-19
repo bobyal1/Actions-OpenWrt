@@ -93,7 +93,7 @@ jobs:
             echo "Warning: No exact tag match for Ubuntu-${kernel_version}. Using the main branch."
             git fetch origin main || git fetch origin master || git fetch origin applied/ubuntu/devel
             git branch -a
-            git checkout main || git checkout master || git checkout applied/ubuntu/devel
+            git checkout main || git checkout master || git checkout ubuntu/devel
           fi
           
           # Switch to the 'master' branch, which contains the kernel source
