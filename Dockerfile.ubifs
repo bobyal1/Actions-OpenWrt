@@ -11,20 +11,24 @@ RUN apt-get update && \
     uuid-dev \
     kmod
 
+# Mount the host's kernel modules and source directories into the container
+VOLUME /lib/modules
+VOLUME /usr/src
+
 # Install kernel headers for the runner's kernel version
 # Note: You can find the specific version by running 'uname -r' on a GitHub Actions runner.
 # The version below is an example. You may need to adapt it.
-RUN kernel_version=$(uname -r) && \
-    apt-get install -y linux-headers-${kernel_version}
+#RUN kernel_version=$(uname -r) && \
+#    apt-get install -y linux-headers-${kernel_version}
 
 # Clone and build mtd-utils for nandsim and ubi tools
-RUN git clone git://git.infradead.org/mtd-utils.git /tmp/mtd-utils && \
-    cd /tmp/mtd-utils && \
-    make -j$(nproc) && \
-    make install
+#RUN git clone git://git.infradead.org/mtd-utils.git /tmp/mtd-utils && \
+#    cd /tmp/mtd-utils && \
+#    make -j$(nproc) && \
+#    make install
 
 # Clean up build directories
-RUN apt-get purge -y build-essential git && \
-    apt-get autoremove -y && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/* /tmp/*
+#RUN apt-get purge -y build-essential git && \
+#    apt-get autoremove -y && \
+#    apt-get clean && \
+#    rm -rf /var/lib/apt/lists/* /tmp/*
