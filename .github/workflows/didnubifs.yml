@@ -9,14 +9,62 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Build custom container with ubifs image
-        run: docker build -t ubifs-builder -f Dockerfile.dind .
+      - name: Get kernel version and download source from Launchpad
+        id: get_kernel_source
+        run: |
+          # Get the host runner's kernel version
+          export kernel_version=$(uname -r)
+          echo "kernel_version=${kernel_version}" >> $GITHUB_OUTPUT
+          
+          # Install git
+          sudo apt-get update
+          sudo apt-get install -y git
+          
+          # Clone the correct linux-azure kernel source from Launchpad
+          echo "Cloning linux-azure kernel source..."
+          cd /tmp
+          git clone --depth 1 git://git.launchpad.net/ubuntu/+source/linux-azure kernel_build
+          cd kernel_build
+          
+          # Check out the commit matching the host's kernel
+          if ! git checkout Ubuntu-"${kernel_version}" 2>/dev/null; then
+            echo "Warning: No exact tag match for Ubuntu-${kernel_version}. Trying main branch."
+            git fetch origin main || git fetch origin master
+            git checkout main || git checkout master
+          fi
+
+          echo "kernel_source_path=/tmp/kernel_build" >> $GITHUB_OUTPUT
+
+      - name: Compile nandsim module
+        run: |
+          export KERN_BUILD_DIR=${{ steps.get_kernel_source.outputs.kernel_source_path }}
+          echo "Building nandsim module..."
+          
+          # Install dependencies required for building kernel modules
+          sudo apt-get update
+          sudo apt-get install -y build-essential linux-headers-${{ steps.get_kernel_source.outputs.kernel_version }}
+          
+          # Build the module
+          make -C "${KERN_BUILD_DIR}" M="$GITHUB_WORKSPACE" modules
+          
+          # Store the compiled module for the Docker build
+          cp drivers/mtd/nand/raw/nandsim.ko .
+
+      - name: Build custom container with ubifs image and nandsim module
+        run: |
+          docker build -t ubifs-builder -f Dockerfile.dind . --build-arg NANSIM_KO=nandsim.ko
+        env:
+          NANSIM_KO_PATH: nandsim.ko
 
       - name: Run test in privileged container
         run: |
           docker run --privileged ubifs-builder /bin/bash -c "
             # Load the nandsim kernel module to create a simulated NAND flash device.
-            modprobe nandsim first_id_byte=0x2c second_id_byte=0xac third_id_byte=0x90 fourth_id_byte=0x26
+            insmod /lib/modules/custom/nandsim.ko
+            
+            # Use `modprobe` to load associated modules
+            modprobe mtdblock
+            modprobe ubi mtd=0
 
             # Wait for the device to appear
             sleep 2
@@ -26,9 +74,6 @@ jobs:
 
             # Write the UBI image to the simulated NAND flash device.
             nandwrite -p /dev/mtd0 ubi.img
-
-            # Load the UBI kernel module and attach the MTD device.
-            modprobe ubi mtd=0
 
             # Mount the UBIFS volume.
             mkdir -p /mnt/ubifs
