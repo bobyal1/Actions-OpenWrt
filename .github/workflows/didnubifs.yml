@@ -10,13 +10,10 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Build custom container with ubifs image
-        run: docker build -t ubifs-builder -f Dockerfile.ubifs .
+        run: docker build -t ubifs-builder -f Dockerfile.dind .
 
       - name: Run test in privileged container
         run: |
-          # Use the built image to run a privileged container
-          # Mounting /lib/modules is no longer necessary
-          # --privileged flag is required for loading kernel modules
           docker run --privileged ubifs-builder /bin/bash -c "
             # Load the nandsim kernel module to create a simulated NAND flash device.
             modprobe nandsim first_id_byte=0x2c second_id_byte=0xac third_id_byte=0x90 fourth_id_byte=0x26
@@ -34,7 +31,7 @@ jobs:
             modprobe ubi mtd=0
 
             # Mount the UBIFS volume.
-            mkdir /mnt/ubifs
+            mkdir -p /mnt/ubifs
             mount -t ubifs ubi0:my_volume /mnt/ubifs
 
             echo 'Listing mounted contents:'
