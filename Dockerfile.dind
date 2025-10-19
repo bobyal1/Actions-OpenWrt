@@ -2,7 +2,9 @@
 FROM alpine:latest AS build
 
 # Install build tools and MTD utilities
-RUN apk add --no-cache bash mtd-utils kmod build-essential linux-headers
+# The 'linux-headers' package might not be strictly necessary if we are not compiling modules,
+# but it is good practice to include it for kernel-related tools.
+RUN apk add --no-cache bash mtd-utils kmod build-base linux-headers
 
 # Create an ubifs image (example for demonstration)
 WORKDIR /data
@@ -19,6 +21,6 @@ RUN ubinize -o ubi.img -m 2048 -p 129024 -s 512 ubifs.cfg
 
 # Final image - install tools, but no build dependencies
 FROM alpine:latest
-RUN apk add --no-cache mtd-utils kmod
+RUN apk add --no-cache mtd-utils kmod bash
 COPY --from=build /data /data
 WORKDIR /data
