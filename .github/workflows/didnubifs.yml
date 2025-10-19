@@ -19,7 +19,8 @@ jobs:
       - name: Run test in privileged container
         run: |
           # Use the built image to run a privileged container
-          docker run --privileged ubifs-builder /bin/bash -c "
+          # Mount the host's /lib/modules to access kernel modules
+          docker run --privileged -v /lib/modules:/lib/modules ubifs-builder /bin/bash -c "
             # Load the nandsim kernel module to create a simulated NAND flash device.
             modprobe nandsim first_id_byte=0x2c second_id_byte=0xac third_id_byte=0x90 fourth_id_byte=0x26
 
