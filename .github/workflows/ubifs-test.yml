@@ -34,6 +34,8 @@ jobs:
           
           # Use a standard location for kernel source, e.g., using apt
           # This will install the kernel headers package, which often creates the build symlink
+          echo "Enabling source repositories..."
+          sudo sed -i 's/^# deb-src/deb-src/' /etc/apt/sources.list
           sudo apt-get update
           sudo apt-get install -y linux-headers-${kernel_version}
           sudo apt-get install -y dpkg-dev
