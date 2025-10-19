@@ -36,6 +36,7 @@ jobs:
           # This will install the kernel headers package, which often creates the build symlink
           sudo apt-get update
           sudo apt-get install -y linux-headers-${kernel_version}
+          sudo apt-get install -y dpkg-dev
 
           # Get kernel source
           cd /tmp
