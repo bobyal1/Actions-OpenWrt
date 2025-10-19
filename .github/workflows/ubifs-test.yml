@@ -51,9 +51,10 @@ jobs:
           else
             kernel_source_name="linux-${kernel_type}"
           fi
+          echo "Kernel type is $kernel_type "
           # Extract Ubuntu series (e.g., "jammy" for kernel 5.15) from the runner's OS version
           ubuntu_series=$(lsb_release -cs)
-          
+          echo "Kernel series is $kernel_series "          
           sudo apt-get update
           sudo apt-get install -y linux-headers-${kernel_version}
           sudo apt-get install -y dpkg-dev
