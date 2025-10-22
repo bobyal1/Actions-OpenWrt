@@ -29,6 +29,32 @@ jobs:
     runs-on: ubuntu-24.04
 
     steps:
+
+    - name: Create ubinize config
+      run: |
+        sudo cat <<EOF > ubinize.cfg
+[rootfs-volume]
+mode=ubi
+image=rootfs.ubifs
+vol_id=0
+vol_name=rootfs
+vol_type=dynamic
+vol_alignment=1
+vol_size=62KiB
+
+[rootfs-data-volume]
+mode=ubi
+vol_id=1
+vol_name=rootfs_data
+vol_type=dynamic
+vol_flags=autoresize
+vol_alignment=1
+
+      EOF
+
+    - name: Display the config file
+        run: cat ubinize.cfg
+        
     - name: Install ubi_reader
       run: |
         #sudo apt-get update
