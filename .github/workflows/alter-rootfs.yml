@@ -53,7 +53,7 @@ jobs:
         EOF
 
     - name: Display the config file
-        run: cat ubinize.cfg
+      run: cat ubinize.cfg
         
     - name: Install ubi_reader
       run: |
