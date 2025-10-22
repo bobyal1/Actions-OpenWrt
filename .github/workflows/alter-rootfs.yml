@@ -52,7 +52,7 @@ jobs:
           ls -ld /mnt
           which ubireader_extract_files
           pwd
-          xxd rootfs.ubi |grep UBI
+          #xxd rootfs.ubi |grep UBI
           ubireader_extract_images rootfs.ubi
           ls -latR
           sudo mkdir /mnt/mx4200_rootfs
