@@ -56,7 +56,7 @@ jobs:
           ubireader_extract_images rootfs.ubi
           ls -latR
           cp ./ubifs-root/rootfs.ubi/img-1750711236_vol-rootfs.ubifs .
-          ubireader_extract_files img-1750711236_vol-rootfs.ubifs
+          xxd img-1750711236_vol-rootfs.ubifs |head
           sudo mkdir /mnt/mx4200_rootfs
           sudo chmod 777 /mnt/mx4200_rootfs
           sudo modprobe ubi
