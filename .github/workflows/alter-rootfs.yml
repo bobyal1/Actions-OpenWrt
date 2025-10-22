@@ -61,19 +61,19 @@ jobs:
           sudo chmod 777 /mnt/mx4200_rootfs
           cp ./ubifs-root/rootfs.ubi/img-1750711236_vol-rootfs.ubifs /mnt/mx4200_rootfs/
           cd /mnt/mx4200_rootfs
-          unsquashfs -s img-1750711236_vol-rootfs.ubifs
-          unsquashfs img-1750711236_vol-rootfs.ubifs
+          sudo unsquashfs -s img-1750711236_vol-rootfs.ubifs
+          sudo unsquashfs img-1750711236_vol-rootfs.ubifs
           cd squashfs-root
-          ls -latR squashfs-root
+          ls -latR squashfs-root/lib/firmware/ath11k/IPQ8074/
       continue-on-error: true
 
     - name: Modify files
       run: |
           # Navigate to the extracted rootfs
           cd /mnt/mx4200_rootfs
-          ls -latR
-          sudo echo "This is a new file created by the GitHub Action." > new_file.txt
-          ls -lh
+          #ls -latR
+          sudo echo "This is a new file created by the GitHub Action." > squashfs-root/lib/firmware/ath11k/IPQ8074/hw2.0/new_file.txt
+          ls -lh squashfs-root/lib/firmware/ath11k/IPQ8074/hw2.0/
 
 
     - name: Repack the UBI image
