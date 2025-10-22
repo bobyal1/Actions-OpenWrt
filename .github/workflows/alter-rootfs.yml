@@ -55,12 +55,12 @@ jobs:
           pwd
           #xxd rootfs.ubi |grep UBI
           ubireader_extract_images rootfs.ubi
-          #ls -latR
+          ls -latR
           #xxd img-1750711236_vol-rootfs.ubifs |head
           sudo mkdir /mnt/mx4200_rootfs
           sudo chmod 777 /mnt/mx4200_rootfs
-          cd /mnt/mx4200_rootfs
           cp ./ubifs-root/rootfs.ubi/img-1750711236_vol-rootfs.ubifs /mnt/mx4200_rootfs/
+          cd /mnt/mx4200_rootfs
           unsquashfs -s img-1750711236_vol-rootfs.ubifs
           unsquashfs img-1750711236_vol-rootfs.ubifs
           cd squashfs-root
