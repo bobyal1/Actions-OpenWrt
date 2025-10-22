@@ -54,6 +54,7 @@ jobs:
           which ubireader_extract_files
           pwd
           #xxd rootfs.ubi |grep UBI
+          ubireader_display_info rootfs.ubi
           ubireader_extract_images rootfs.ubi
           ls -latR
           #xxd img-1750711236_vol-rootfs.ubifs |head
