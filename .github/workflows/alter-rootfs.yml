@@ -42,7 +42,7 @@ jobs:
         vol_name=rootfs
         vol_type=dynamic
         vol_alignment=1
-        vol_size=62KiB
+        vol_flags=autoresize
         
         [rootfs-data-volume]
         mode=ubi
