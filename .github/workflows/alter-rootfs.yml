@@ -98,7 +98,7 @@ jobs:
           sudo mv squashfs-root/lib/firmware/ath11k/IPQ8074/hw2.0/board-2.bin squashfs-root/lib/firmware/ath11k/IPQ8074/hw2.0/_IGNORE_board-2.bin
           sudo ls -latR squashfs-root/lib/firmware/ath11k/IPQ8074/
           sleep 10
-          cp /mnt/mx4200_rootfs/caldata.bin squashfs-root/lib/firmware/ath11k/IPQ8074/hw2.0/board.bin
+          sudo cp /mnt/mx4200_rootfs/caldata.bin squashfs-root/lib/firmware/ath11k/IPQ8074/hw2.0/board.bin
           sudo mksquashfs squashfs-root new_image.squashfs -comp xz -b 262144 -no-xattrs -exports
           #sudo cp new_image.squashfs /mnt/mx4200_rootfs
 
