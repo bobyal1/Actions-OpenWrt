@@ -90,8 +90,10 @@ jobs:
           cd /mnt/mx4200_rootfs
           sudo unsquashfs -s img-1750711236_vol-rootfs.ubifs
           sudo unsquashfs img-1750711236_vol-rootfs.ubifs
-          cd squashfs-root
-          ls -latR squashfs-root/lib/firmware/ath11k/IPQ8074/
+          #cd squashfs-root
+          sudo ls -latR squashfs-root/lib/firmware/ath11k/IPQ8074/
+          sudo mv squashfs-root/lib/firmware/ath11k/IPQ8074/hw2.0/board-2.bin squashfs-root/lib/firmware/ath11k/IPQ8074/hw2.0/_IGNORE_board-2.bin
+          sudo ls -latR squashfs-root/lib/firmware/ath11k/IPQ8074/
       continue-on-error: true
 
     - name: Modify files
