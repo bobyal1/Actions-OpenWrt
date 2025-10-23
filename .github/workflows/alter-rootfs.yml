@@ -37,7 +37,7 @@ jobs:
         sudo cat <<EOF > ubinize.cfg
         [rootfs-volume]
         mode=ubi
-        image=rootfs.ubifs
+        image=img-1750711236_vol-rootfs.ubifs
         vol_id=0
         vol_name=rootfs
         vol_type=dynamic
@@ -46,6 +46,7 @@ jobs:
         
         [rootfs-data-volume]
         mode=ubi
+        image=img-1750711236_vol-rootfs_data.ubifs
         vol_id=1
         vol_name=rootfs_data
         vol_type=dynamic
@@ -88,8 +89,10 @@ jobs:
           #xxd img-1750711236_vol-rootfs.ubifs |head
           sudo mkdir /mnt/mx4200_rootfs
           sudo chmod 777 /mnt/mx4200_rootfs
-          cp ./ubifs-root/rootfs.ubi/img-1750711236_vol-rootfs.ubifs /mnt/mx4200_rootfs/
-          cp ./caldata.bin /mnt/mx4200_rootfs/
+          sudo cp ./ubifs-root/rootfs.ubi/img-1750711236_vol-rootfs_data.ubifs /mnt/mx4200_rootfs/
+          sudo cp ./ubifs-root/rootfs.ubi/img-1750711236_vol-rootfs.ubifs /mnt/mx4200_rootfs/
+          sudo cp ./caldata.bin /mnt/mx4200_rootfs/
+          sudo cp ./ubinize.cfg /mnt/mx4200_rootfs/
           cd /mnt/mx4200_rootfs
           sudo unsquashfs -s img-1750711236_vol-rootfs.ubifs
           sudo unsquashfs img-1750711236_vol-rootfs.ubifs
@@ -100,43 +103,16 @@ jobs:
           sleep 10
           sudo cp /mnt/mx4200_rootfs/caldata.bin squashfs-root/lib/firmware/ath11k/IPQ8074/hw2.0/board.bin
           sudo mksquashfs squashfs-root new_image.squashfs -comp xz -b 262144 -no-xattrs -exports
+          sudo cp new_image.squashfs img-1750711236_vol-rootfs.ubifs
+          sudo ubinize -o final_firmware.ubi -p 131072 -m 2048 ubinize.cfg
+          sudo ubireader_display_info final_firmware.ubi
           #sudo cp new_image.squashfs /mnt/mx4200_rootfs
 
       continue-on-error: true
-
-    - name: Modify files
-      run: |
-          # Navigate to the extracted rootfs
-          cd /mnt/mx4200_rootfs
-          ls -latR squashfs-root/lib/firmware/ath11k/
-          sudo echo "This is a new file created by the GitHub Action." > squashfs-root/lib/firmware/ath11k/IPQ8074/hw2.0/new_file.txt
-          ls -lh squashfs-root/lib/firmware/ath11k/IPQ8074/hw2.0/
-      continue-on-error: true
-
-
-    - name: Repack the UBI image
-      run: |
-          # Create a new UBIFS image from the modified files
-          #cd /mnt
-          #sudo mkfs.ubifs -r /mnt/mx4200_rootfs -m 16384 -e 2031616 -c 16 -o rootfs-new.ubi
-
-          # Create the ubinize config file
-          sudo cat << EOF > ubinize.cfg
-          [rootfs]
-          mode=ubi
-          image=new_ubifs.img
-          vol_id=0
-          vol_type=dynamic
-          vol_name=rootfs
-          vol_flags=autoresize
-          EOF
-
-          # Create the final UBI image
-          #sudo ubinize -o new_ubi.img -p 2097152 -m 16384 ubinize.cfg
 
 
     - name: Upload the extracted file as an artifact
       uses: actions/upload-artifact@v4
       with:
-          name: updated-rootfs
-          path: /mnt/mx4200_rootfs/new_image.squashfs
+          name: updated-rootfs-ubi
+          path: /mnt/mx4200_rootfs/final_firmware.ubi
