@@ -46,7 +46,6 @@ jobs:
         
         [rootfs-data-volume]
         mode=ubi
-        image=img-1750711236_vol-rootfs_data.ubifs
         vol_id=1
         vol_name=rootfs_data
         vol_type=dynamic
